@@ -1,0 +1,28 @@
+version: '3'
+services:
+#  contracts:
+#    image: jincort/backend-contracts:latest
+#    environment:
+#    depends_on:
+#      - auth
+
+  auth:
+    image: jincort/backend-auth:production
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      THROTTLER_WHITE_LIST: 127.0.0.1,10.5.0.2,10.5.0.3
+      TENANT_WHITE_LIST: 127.0.0.1,10.5.0.2,10.5.0.3
+      FORCE_HTTPS: disabled
+      JWT_KEY: JwtSecret
+    ports:
+      - 9300: 3000
+    volumes:
+      - /usr/src/app
+    depends_on:
+      - redis
+
+  redis:
+    image: jincort/backend-redis:production
+    volumes:
+      - ./storage/redis:/data
