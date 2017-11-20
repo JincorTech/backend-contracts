@@ -27,14 +27,44 @@ export class NetworkController {
     'DeployEvmContractRequstValidator'
   )
   async deployEvmContract(req: AuthenticatedRequest, res: Response): Promise<void> {
-    throw new Error('Not implemented');
+    try {
+      const result = await this.contractApp.deployContract({
+        initiatorUsername: req.tokenDecoded.login,
+        networkId: req.params.network,
+        peers: req.body.peers,
+        abi: JSON.parse(req.body.abi),
+        code: req.body.code,
+        constructorArgs: req.body.args
+      });
+      res.json({
+        result
+      });
+    } catch (error) {
+      responseAsUnbehaviorError(res, error);
+    }
   }
 
   @httpPost(
-    '/contracts/{contract}/actions/invoke',
+    '/contracts/:contract/actions/invoke',
     'InvokeEvmContractMethodRequestValidator'
   )
   async invokeEvmContractMethod(req: AuthenticatedRequest, res: Response): Promise<void> {
-    throw new Error('Not implemented');
+    try {
+      const result = await this.contractApp.invokeContract({
+        contractAddress: req.params.contract,
+        initiatorUsername: req.tokenDecoded.login,
+        networkId: req.params.network,
+        peers: req.body.peers,
+        abi: JSON.parse(req.body.abi),
+        method: req.body.method,
+        methodArgs: req.body.args,
+        commitTransaction: typeof req.body.commitTransaction === 'undefined' ? true : req.body.commitTransaction
+      });
+      res.json({
+        result
+      });
+    } catch (error) {
+      responseAsUnbehaviorError(res, error);
+    }
   }
 }

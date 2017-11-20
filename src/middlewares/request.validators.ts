@@ -40,12 +40,12 @@ const jsonSchemeDeployEvmContractRequst = Joi.object().keys({
   args: jsonSchemeContractArgs
 });
 
+// @TODO: Use abi_hash for getting abi from cache.
+// abi: Joi.string().when('abi_hash', { is: Joi.hex().required(), then: Joi.optional() }),
+// abi_hash: Joi.hex().when('abi', { is: Joi.hex().required(), then: Joi.optional() }),
 const jsonSchemeInvokeEvmContractMethodRequest = Joi.object().keys({
   peers: Joi.array().items(Joi.string()).min(1).unique().required(),
-  address: Joi.string().hex().empty().required(),
   abi: Joi.string().required(),
-  // abi: Joi.string().when('abi_hash', { is: Joi.hex().required(), then: Joi.optional() }),
-  // abi_hash: Joi.hex().when('abi', { is: Joi.hex().required(), then: Joi.optional() }),
   method: Joi.string().empty().required(),
   args: jsonSchemeContractArgs
 });

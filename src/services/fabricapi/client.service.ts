@@ -10,6 +10,9 @@ import { FabricApiClientException } from './exceptions';
 
 let cachedToken: string;
 
+/**
+ * Fabric Api Client.
+ */
 export class FabricApiClient {
   protected logger: Logger = Logger.getInstance('FABRIC_API_CLIENT');
 
@@ -61,7 +64,7 @@ export class FabricApiClient {
    * @param data
    */
   public async callApi<T>(method: RequestMethod, url: string, data: any): Promise<T> {
-    this.logger.verbose('Call api', method, url);
+    this.logger.verbose('Call api', method, url, data);
 
     for (let attempts = 0; ; attempts++) {
       const token = await this.getAuthToken();
