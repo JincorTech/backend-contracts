@@ -13,6 +13,7 @@ import { NOT_ACCEPTABLE } from 'http-status';
 import config from './config';
 import { Logger, newConsoleTransport } from './logger';
 import { container } from './ioc.container';
+import { EventServer } from './services/events/event.service';
 
 winston.configure({
   level: config.logging.level,
@@ -80,8 +81,10 @@ if (!config.server.http && !config.server.https) {
 if (config.server.http) {
   serverLogger.verbose('Create HTTP server...');
   const httpServer = http.createServer(server);
+  const eventServer = new EventServer(container, httpServer);
+
   httpServer.listen(config.server.httpPort, config.server.httpIp);
-  serverLogger.info('Listen HTTP on %s:%s', config.server.httpIp, config.server.httpPort);
+  serverLogger.info('Listen HTTP/WS on %s:%s', config.server.httpIp, config.server.httpPort);
 }
 
 /**
@@ -90,13 +93,13 @@ if (config.server.http) {
 if (config.server.https) {
   winston.log('verbose', 'Create HTTPS server...');
   const httpsOptions = {
-    // crl: '',
     requestCert: config.server.httpsRequestClientCert,
     ca: fs.readFileSync(config.server.httpsCa),
     key: fs.readFileSync(config.server.httpsPrivKey),
     cert: fs.readFileSync(config.server.httpsPubKey)
   };
   const httpsServer = https.createServer(httpsOptions, server);
+
   httpsServer.listen(config.server.httpsPort, config.server.httpsIp);
-  winston.log('info', 'Listen HTTPS on %s:%s', config.server.httpsIp, config.server.httpsPort);
+  winston.log('info', 'Listen HTTPS/WSS on %s:%s', config.server.httpsIp, config.server.httpsPort);
 }
