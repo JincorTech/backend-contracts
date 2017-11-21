@@ -73,11 +73,10 @@ export class FabricApiEvmContract {
     abiDesc: Array<AbiMethod>,
     contractAddress: string,
     methodName: string,
-    returnTypes: string,
     methodArgs: Array<string>,
     commitTransaction: boolean = false
   ): Promise<any> {
-    this.logger.verbose('Invoke contract method', contractAddress, methodName);
+    this.logger.verbose('Invoke contract method', contractAddress, methodName, this.initiatorUsername);
 
     const methodAbiParams = abiDesc.filter(abiMethod => abiMethod.name === methodName && abiMethod.type === 'function').pop();
     if (!methodAbiParams) {
@@ -113,8 +112,8 @@ export class FabricApiEvmContract {
       throw new ContractDeployException('Can\'t invoke contract');
     }
 
-    if (returnTypes) {
-      result = abi.rawDecode(returnTypes.match(/([^() ,]+)/g), new Buffer(response.payload.data, 'hex'));
+    if (methodAbiParams.outputs && methodAbiParams.outputs.length) {
+      result = abi.rawDecode(methodAbiParams.outputs.map(o => o.type), new Buffer(response.payload.data, 'hex'));
     }
 
     return {

@@ -49,10 +49,7 @@ export class ContractApplication {
       throw new Error('Invalid hex code format');
     }
 
-    // To decode raw values of returned data could be used method name like getBalance:(uint256)
-    const [methodName, returnTypes] = request.method.split(':');
-
-    const result = await svc.invoke(request.abi, request.contractAddress, methodName, returnTypes, request.methodArgs, request.commitTransaction);
+    const result = await svc.invoke(request.abi, request.contractAddress, request.method, request.methodArgs, request.commitTransaction);
     return result;
   }
 }

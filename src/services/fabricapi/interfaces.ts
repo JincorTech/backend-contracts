@@ -26,7 +26,7 @@ export interface AbiParam {
 
 export interface AbiMethod {
   inputs: Array<AbiParam>;
-  output: Array<AbiParam>;
+  outputs: Array<AbiParam>;
   name: string;
   constant: boolean;
   payable: boolean;
