@@ -1,7 +1,7 @@
 import config from '../../config';
 import { Logger } from '../../logger';
 import { FabricApiClient } from './client.service';
-import { UserRequest, RequestMethod, NetworkRequest } from './interfaces';
+import { UserRequest, RequestMethod, NetworkRequest, EnrollResponse } from './interfaces';
 
 /**
  * Service for certificate manipulation
@@ -33,14 +33,14 @@ export class FabricApiCertificate {
   /**
    * Enroll certificate for registered user
    */
-  public async enroll(username: string, password: string): Promise<boolean> {
+  public async enroll(username: string, password: string): Promise<EnrollResponse> {
     this.logger.verbose('Enroll', username);
 
-    const enrollResult = await this.fabricApi.callApi<{isEnrolled: boolean}>(RequestMethod.POST, '/cert-auths/users/actions/enroll', {
+    const enrollResult = await this.fabricApi.callApi<EnrollResponse>(RequestMethod.POST, '/cert-auths/users/actions/enroll', {
       username,
       password
     });
 
-    return enrollResult.isEnrolled;
+    return enrollResult;
   }
 }

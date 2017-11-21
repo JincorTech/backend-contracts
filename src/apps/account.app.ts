@@ -1,13 +1,14 @@
-import config from '../config';
-import { FabricApiClient } from '../services/fabricapi/client.service';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
+import config from '../config';
 import { Logger } from '../logger';
+import { FabricApiClient } from '../services/fabricapi/client.service';
 import { FabricApiCertificate } from '../services/fabricapi/certificate.service';
 import { MessageQueueType } from '../services/mq/natsmq.service';
 import { MessageQueue } from '../services/mq/interfaces';
 import { FabricApiEvmContract } from '../services/fabricapi/contract.service';
+import { EnrollResponse } from '../services/fabricapi/interfaces';
 
 // IoC
 export const AccountApplicationType = Symbol('AccountApplicationType');
@@ -34,7 +35,7 @@ export class AccountApplication {
    * @param userLogin
    * @param userPassword
    */
-  async registerAccount(userLogin: string, userPassword: string): Promise<string> {
+  async registerAccount(userLogin: string, userPassword: string): Promise<EnrollResponse> {
     const sanitizedLogin = userLogin.replace(/[:]/g, '.');
 
     this.logger.verbose('Register a new user', sanitizedLogin);
@@ -50,6 +51,9 @@ export class AccountApplication {
 
     const enrollResult = await this.fabricApiCertificate.enroll(sanitizedLogin, userPassword);
 
-    return sanitizedLogin;
+    return {
+      username: sanitizedLogin,
+      address: enrollResult.address
+    };
   }
 }

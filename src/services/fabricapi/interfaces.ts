@@ -3,6 +3,11 @@ export enum RequestMethod {
   GET = 'get'
 }
 
+export interface EnrollResponse {
+  username: string;
+  address: string;
+}
+
 export interface UserRequest {
   login: string;
   password: string;

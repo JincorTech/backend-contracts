@@ -32,9 +32,7 @@ export class AccountController {
         req.tokenDecoded.login,
         req.body.password
       );
-      res.json({
-        login: registeredLogin
-      });
+      res.json(registeredLogin);
     } catch (error) {
       responseAsUnbehaviorError(res, error);
     }
