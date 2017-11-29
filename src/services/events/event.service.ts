@@ -55,7 +55,7 @@ export class EventServer {
       server: this.httpServer
     });
 
-    this.server.on('connection', this.onWebsocketClientConnect);
+    this.server.on('connection', this.onWebsocketClientConnect.bind(this));
   }
 
   private async onWebsocketClientConnect(clientSocket, clientRequest) {
@@ -66,7 +66,7 @@ export class EventServer {
       return;
     }
 
-    if (!parsedUrl.query || !parsedUrl.query.token) {
+    if (!parsedUrl.query || (!parsedUrl.query.token && !parsedUrl.query.tenant_token)) {
       clientSocket.close(1008, 'Not authorized');
       return;
     }
@@ -75,18 +75,30 @@ export class EventServer {
 
     let decodedToken;
     try {
-      decodedToken = await this.authService.validate(parsedUrl.query.token);
+      decodedToken = parsedUrl.query.token ? await this.authService.validateUser(parsedUrl.query.token) : await this.authService.validateTenant(parsedUrl.query.tenant_token);
     } catch (error) {
       clientSocket.close(1008, 'Not authorized');
       return;
     }
+
+    clientSocket.on('message', function incoming(message) {
+      try {
+        const data = JSON.parse(message);
+        if (data.command === 'PING') {
+          clientSocket.send('{"response":"PONG"}');
+        }
+      } catch (err) {
+      }
+    });
   }
 
   private subscribeOnEvents() {
     const mqService = this.container.get<MessageQueue>(MessageQueueType);
 
+    this.logger.verbose('Subscribe on transactions');
     mqService.subscribe(`${config.mq.channelTransactions}${config.fabricapi.mspId}`,
       (data: string, reply: any, channel: string) => {
+
         const eventData = JSON.parse(data);
         this.transactionEvents.set(eventData.transactionId, eventData.code);
         this.broadcast(JSON.stringify({
@@ -100,6 +112,7 @@ export class EventServer {
 
     const [chaincode, chaincodeVersion] = config.fabricapi.evmChaincode.split(':');
 
+    this.logger.verbose('Subsribe on EVM events');
     mqService.subscribe(`${config.mq.channelChaincodes}${config.fabricapi.mspId}/${chaincode}/EVM:LOG`,
       (data: string, reply: any, channel: string) => {
         const eventData = JSON.parse(data);

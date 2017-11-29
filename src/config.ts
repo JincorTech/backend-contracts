@@ -19,6 +19,7 @@ const {
   CONTRACTS_SERVER_HTTPS_CLIENT_REQ,
 
   CONTRACTS_AUTH_VERIFY_URL,
+  CONTRACTS_AUTH_TENANT_VERIFY_URL,
   CONTRACTS_AUTH_ACCESS_JWT,
   CONTRACTS_AUTH_TIMEOUT,
   CONTRACTS_AUTH_TLS,
@@ -74,6 +75,7 @@ export default {
   },
   auth: {
     verifyUrl: CONTRACTS_AUTH_VERIFY_URL || 'http://auth:3000/auth/verify',
+    tenantVerifyUrl: CONTRACTS_AUTH_TENANT_VERIFY_URL || 'http://auth:3000/tenant/verify',
     accessJwt: CONTRACTS_AUTH_ACCESS_JWT,
     timeout: parseInt(CONTRACTS_AUTH_TIMEOUT, 10) || 10000,
     tls: CONTRACTS_AUTH_TLS === 'true',

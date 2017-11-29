@@ -4,3 +4,13 @@ node_modules
 npm-debug.log
 coverage
 .nyc_output
+
+auth
+data
+storage
+tls
+tmp
+MetaCoin_sol_MetaCoin.abi
+MetaCoin_sol_MetaCoin.bin
+call
+call-new
