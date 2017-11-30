@@ -50,6 +50,8 @@ const {
   CONTRACTS_NATS_USER,
   CONTRACTS_NATS_PASSWORD,
 
+  CONTRACTS_LOGINS_MODE,
+
   CONTRACTS_TRANSACTIONS_MAX_SIZE,
   CONTRACTS_TRANSACTIONS_TTL_IN_SEC
 } = process.env;
@@ -98,6 +100,9 @@ export default {
     tlsPrivKey: CONTRACTS_FABRICAPI_TLS_PRIV_KEY || '',
     tlsPrivKeyPass: CONTRACTS_FABRICAPI_TLS_PRIV_KEY_PASSWORD || '',
     tlsCa: CONTRACTS_FABRICAPI_TLS_CA || ''
+  },
+  logins: {
+    corporate: CONTRACTS_LOGINS_MODE === 'corporate'
   },
   mq: {
     channelChaincodes: '/hyperledger-fabricapi/events/chaincodes/',
