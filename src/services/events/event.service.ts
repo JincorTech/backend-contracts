@@ -1,3 +1,5 @@
+import { FabricApiClient } from '../fabricapi/client.service';
+import { QueryFabric } from '../fabricapi/query.service';
 import config from '../../config';
 import { setTimeout } from 'timers';
 import * as ws from 'ws';
@@ -19,6 +21,7 @@ export class EventServer {
   private logger: Logger = Logger.getInstance('EVENT_SERVER');
   private authService: AuthenticationService;
   private transactionEvents: any;
+  private fabricApi: FabricApiClient;
 
   /**
    * @param container
@@ -32,6 +35,7 @@ export class EventServer {
       max: config.mq.transactionsMaxSize,
       maxAge: config.mq.transactionsTtlInSec * 1000
     });
+    this.fabricApi = new FabricApiClient();
   }
 
   private broadcast(data: any) {
@@ -81,13 +85,30 @@ export class EventServer {
       return;
     }
 
-    clientSocket.on('message', function incoming(message) {
+    clientSocket.on('message', async(message) => {
       try {
         const data = JSON.parse(message);
-        if (data.command === 'PING') {
-          clientSocket.send('{"response":"PONG"}');
+        // @TODO: Add joi validation
+        switch (data.command) {
+          case 'PING':
+            clientSocket.send('{"response":"PONG"}');
+            break;
+          case 'TRANSACTION_STATUS':
+            const queryFabric = new QueryFabric(this.fabricApi,
+              data.args.network,
+              data.args.peers,
+              data.args.initiateUser
+            );
+            clientSocket.send(JSON.stringify({
+              response: {
+                txId: data.args.txId,
+                status: await queryFabric.queryTransactionStatusByHash(data.args.txId)
+              }
+            }));
+            break;
         }
       } catch (err) {
+        this.logger.error('Error was occurred when process commands from client', err);
       }
     });
   }

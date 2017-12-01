@@ -1,3 +1,4 @@
+import { loginAsHash } from '../helpers/logins';
 import { DeployContractRequest, InvokeContractMethodRequest } from './interfaces';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
@@ -23,7 +24,9 @@ export class ContractApplication {
    */
   async deployContract(request: DeployContractRequest) {
     const sanitizedLogin = request.initiatorUsername.replace(/[:]/g, '.');
-    const svc = new FabricApiEvmContract(this.client, request.networkId, request.peers, sanitizedLogin);
+    const svc = new FabricApiEvmContract(this.client, request.networkId, request.peers, loginAsHash(sanitizedLogin));
+
+    this.logger.verbose('Deploy contract by', sanitizedLogin, loginAsHash(sanitizedLogin));
 
     if (!/^(0x)?[\da-fA-F]+$/.test(request.code)) {
       throw new Error('Invalid hex code format');
@@ -43,7 +46,9 @@ export class ContractApplication {
    */
   async invokeContract(request: InvokeContractMethodRequest) {
     const sanitizedLogin = request.initiatorUsername.replace(/[:]/g, '.');
-    const svc = new FabricApiEvmContract(this.client, request.networkId, request.peers, sanitizedLogin);
+    const svc = new FabricApiEvmContract(this.client, request.networkId, request.peers, loginAsHash(sanitizedLogin));
+
+    this.logger.verbose('Invoke contract by', sanitizedLogin, loginAsHash(sanitizedLogin));
 
     if (!/^[\da-fA-F]{40,64}$/.test(request.contractAddress)) {
       throw new Error('Invalid hex code format');
