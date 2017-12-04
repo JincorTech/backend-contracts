@@ -1,0 +1,128 @@
+FORMAT: 1A
+HOST: http://contracts:3000/
+
+# Jincor Backend Contracts
+
+# API Endpoints Summary
+
+JWT_TOKEN should be passed for every API call in the HTTP headers.
+
+1. `/api/accounts [POST]`
+1. `/api/networks/{NETWORK}/contracts [POST]`
+1. `/api/networks/{NETWORK}/contracts/{CONTRACT_ADDRESS}/actions/invoke [POST]`
+
+# Events
+
+Use websocket with url `ws://contracts/events?token={JWT_TOKEN}`.
+
+```
+webSocket.onmessage = function(event) {
+  var e = JSON.parse(event.data),
+    payload = e.payload;
+
+  switch(e.type) {
+    // Receive transaction events:
+    case 'transaction':
+      // payload.txId   - transaction id
+      // payload.status - transaction status
+      break;
+
+    // Receive EVM events:
+    case 'evm':
+      // payload.txId    - transaction id
+      // payload.address - contract address
+      // payload.status  - contract event status
+      // payload.topics  - contract event topics
+      // payload.data    - contract event data
+      break;
+  }
+
+};
+```
+
+## Account [/api/accounts]
+
+### Register new account from JWT [POST]
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer {JWT_TOKEN}
+            Accept: application/vnd.jincor+json; version=1
+
+    + Body
+
+            {
+                "from_jwt": true,
+                "password": "123456"
+            }
+
++ Response 200 (application/json)
+
+            {
+                "username": "...from JWT_TOKEN...",
+                "address": "02aa236df5382e9cfc451ea6749bfdb6a02d5ffc"
+            }
+
++ Response 422 (application/json)
+
+            {
+                "error": "...Error message..."
+            }
+
+
+## Deploy Contracts [/api/networks/{NETWORK}/contracts/actions/deploy]
+
+It will register an account of current user (from JWT) automatically.
+
+### Deploy and invoke constructor [POST]
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer {JWT_TOKEN}
+            Accept: application/vnd.jincor+json; version=1
+
+    + Body
+
+            {
+                "peers": ["peer0.network.com"],
+                "abi": "...abi...",
+                "code": "...code...",
+                "args": ["1", "Test", false]
+            }
+
++ Response 200 (application/json)
+
+            {
+                "address": "13b7e5917e292961b7aa80aa6029e320d2e9740f",
+                "abi_hash": "c0ba4189ff782d3a1ee3057a578900cafe8280bb5ddf23955f9e9977dd880e9a"
+            }
+
+## Invoke Contracts [/api/networks/{NETWORK}/contracts/{CONTRACT_ADDRESS}/actions/invoke]
+
+### Invoke method [POST]
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer {JWT_TOKEN}
+            Accept: application/vnd.jincor+json; version=1
+
+    + Body
+
+            {
+                "peers": ["peer0.network.com"],
+                "address": "....",
+                "abi_hash": "......",
+                "abi": "......",
+                "method": "getBalance(address)",
+                "args": ["13b7e5917e292961b7aa80aa6029e320d2e9740f"]
+            }
+
++ Response 200 (application/json)
+
+            {
+                "result": ["341d5c385cdee3d3212f25cf5106743448b7a9ac", "1000"]
+            }
+
