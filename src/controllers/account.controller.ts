@@ -1,3 +1,4 @@
+import { getLogin } from '../helpers/logins';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { controller, httpDelete, httpPost } from 'inversify-express-utils';
@@ -29,7 +30,7 @@ export class AccountController {
   async registerAccount(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const registeredLogin = await this.accountApp.registerAccount(
-        req.tokenDecoded.login,
+        getLogin(req.tokenDecoded, req.body.isCorporate),
         req.body.password
       );
       res.json(registeredLogin);

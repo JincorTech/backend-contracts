@@ -35,7 +35,7 @@ export class AuthMiddleware {
   async execute(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     this.expressBearer(req, res, async() => {
       try {
-        req.tokenDecoded = await this.authenticationService.validate(req.token);
+        req.tokenDecoded = await this.authenticationService.validateUser(req.token);
         next();
       } catch (error) {
         if (error instanceof AuthenticationException) {

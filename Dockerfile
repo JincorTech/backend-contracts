@@ -5,6 +5,6 @@ WORKDIR /usr/src/app
 RUN mkdir -p /usr/src/app
 ADD . /usr/src/app
 ADD ./.env.template /usr/src/app/.env
-RUN npm i
+RUN apk add --no-cache python make g++ libc6-compat && npm i
 
 CMD npm start

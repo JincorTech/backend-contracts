@@ -16,7 +16,7 @@ services:
       FORCE_HTTPS: disabled
       JWT_KEY: JwtSecret
     ports:
-      - 9300: 3000
+      - 9300:3000
     volumes:
       - /usr/src/app
     depends_on:

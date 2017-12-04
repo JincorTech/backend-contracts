@@ -15,7 +15,8 @@ export const AuthenticationServiceType = Symbol('AuthenticationServiceType');
  */
 export interface AuthenticationService {
 
-  validate(jwtToken: string): Promise<VerificationResult>;
+  validateUser(jwtToken: string): Promise<VerificationResult>;
+  validateTenant(jwtToken: string): Promise<VerificationResult>;
 
 }
 
@@ -26,7 +27,8 @@ export interface AuthenticationService {
 export class ExternalHttpJwtAuthenticationService implements AuthenticationService {
   private logger: Logger = Logger.getInstance('EXTERNAL_HTTP_JWT_AUTH');
 
-  private apiUrl: string = config.auth.verifyUrl;
+  private userVerifyUrl: string = config.auth.verifyUrl;
+  private tenantVerifyUrl: string = config.auth.tenantVerifyUrl;
   private timeout: number = config.auth.timeout;
   private agentOptions: any;
 
@@ -52,27 +54,41 @@ export class ExternalHttpJwtAuthenticationService implements AuthenticationServi
   }
 
   /**
-   * Validate JWT token
+   * Validate user JWT token
    * @param jwtToken
    */
-  async validate(jwtToken: string): Promise<VerificationResult> {
-    this.logger.verbose('Validate token');
+  async validateUser(jwtToken: string): Promise<VerificationResult> {
+    this.logger.verbose('Validate user token');
 
     if (!jwtToken) {
       return null;
     }
 
-    return await this.callVerifyJwtTokenMethodEndpoint(jwtToken);
+    return await this.callVerifyJwtTokenMethodEndpoint(jwtToken, this.userVerifyUrl);
+  }
+
+  /**
+   * Validate tenant JWT token
+   * @param jwtToken
+   */
+  async validateTenant(jwtToken: string): Promise<VerificationResult> {
+    this.logger.verbose('Validate tenant token');
+
+    if (!jwtToken) {
+      return null;
+    }
+
+    return await this.callVerifyJwtTokenMethodEndpoint(jwtToken, this.tenantVerifyUrl);
   }
 
   /**
    * Make HTTP/HTTPS request
    * @param jwtToken
    */
-  private async callVerifyJwtTokenMethodEndpoint(jwtToken: string): Promise<VerificationResult> {
+  private async callVerifyJwtTokenMethodEndpoint(jwtToken: string, apiUrl: string): Promise<VerificationResult> {
     try {
       /* istanbul ignore next */
-      const response = await request.json<{decoded: any}>(this.apiUrl, {
+      const response = await request.json<{decoded: any}>(apiUrl, {
         timeout: this.timeout,
         auth: {
           bearer: config.auth.accessJwt
@@ -87,9 +103,7 @@ export class ExternalHttpJwtAuthenticationService implements AuthenticationServi
         throw new AuthenticationException('Invalid token');
       }
 
-      if (!e.content.decoded.login || !e.content.decoded.jti) {
-        throw new AuthenticationException('JWT has invalid format');
-      }
+      this.logger.error('Error was occurred when call auth', e);
 
       throw new AuthenticationException(e.content);
     }
@@ -117,13 +131,30 @@ export class CachedAuthenticationDecorator implements AuthenticationService {
   /**
    * @inheritdoc
    */
-  async validate(jwtToken: string): Promise<VerificationResult> {
+  async validateUser(jwtToken: string): Promise<VerificationResult> {
     try {
       if (this.lruCache.has(jwtToken)) {
         return this.lruCache.get(jwtToken);
       }
 
-      const result = await this.authenticationService.validate(jwtToken);
+      const result = await this.authenticationService.validateUser(jwtToken);
+      this.lruCache.set(jwtToken, result);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async validateTenant(jwtToken: string): Promise<VerificationResult> {
+    try {
+      if (this.lruCache.has(jwtToken)) {
+        return this.lruCache.get(jwtToken);
+      }
+
+      const result = await this.authenticationService.validateTenant(jwtToken);
       this.lruCache.set(jwtToken, result);
       return result;
     } catch (err) {

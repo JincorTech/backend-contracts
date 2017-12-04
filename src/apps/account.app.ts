@@ -1,3 +1,4 @@
+import { loginAsHash } from '../helpers/logins';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
@@ -38,9 +39,9 @@ export class AccountApplication {
   async registerAccount(userLogin: string, userPassword: string): Promise<EnrollResponse> {
     const sanitizedLogin = userLogin.replace(/[:]/g, '.');
 
-    this.logger.verbose('Register a new user', sanitizedLogin);
+    this.logger.verbose('Register a new user', sanitizedLogin, loginAsHash(sanitizedLogin));
     try {
-      await this.fabricApiCertificate.register(config.fabricapi.regUser, sanitizedLogin, userPassword);
+      await this.fabricApiCertificate.register(config.fabricapi.regUser, loginAsHash(sanitizedLogin), userPassword);
     } catch (error) {
       if (!error.response || !error.response.body.message || !/already registered/.test(error.response.body.message)) {
         throw error;
@@ -49,7 +50,7 @@ export class AccountApplication {
 
     this.logger.verbose('Enroll certificate for user', sanitizedLogin);
 
-    const enrollResult = await this.fabricApiCertificate.enroll(sanitizedLogin, userPassword);
+    const enrollResult = await this.fabricApiCertificate.enroll(loginAsHash(sanitizedLogin), userPassword);
 
     return {
       username: sanitizedLogin,

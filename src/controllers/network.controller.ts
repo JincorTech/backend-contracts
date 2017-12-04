@@ -1,3 +1,4 @@
+import { getLogin } from '../helpers/logins';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { controller, httpDelete, httpPost } from 'inversify-express-utils';
@@ -29,7 +30,7 @@ export class NetworkController {
   async deployEvmContract(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const result = await this.contractApp.deployContract({
-        initiatorUsername: req.tokenDecoded.login,
+        initiatorUsername: getLogin(req.tokenDecoded, req.body.isCorporate),
         networkId: req.params.network,
         peers: req.body.peers,
         abi: JSON.parse(req.body.abi),
@@ -40,6 +41,7 @@ export class NetworkController {
         result
       });
     } catch (error) {
+      console.log('Error', error);
       responseAsUnbehaviorError(res, error);
     }
   }
@@ -52,7 +54,7 @@ export class NetworkController {
     try {
       const result = await this.contractApp.invokeContract({
         contractAddress: req.params.contract,
-        initiatorUsername: req.tokenDecoded.login,
+        initiatorUsername: getLogin(req.tokenDecoded, req.body.isCorporate),
         networkId: req.params.network,
         peers: req.body.peers,
         abi: JSON.parse(req.body.abi),
@@ -64,6 +66,7 @@ export class NetworkController {
         result
       });
     } catch (error) {
+      console.log('Error', error);
       responseAsUnbehaviorError(res, error);
     }
   }

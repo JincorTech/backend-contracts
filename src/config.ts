@@ -16,8 +16,10 @@ const {
   CONTRACTS_SERVER_HTTPS_PUB_KEY,
   CONTRACTS_SERVER_HTTPS_PRIV_KEY,
   CONTRACTS_SERVER_HTTPS_CA,
+  CONTRACTS_SERVER_HTTPS_CLIENT_REQ,
 
   CONTRACTS_AUTH_VERIFY_URL,
+  CONTRACTS_AUTH_TENANT_VERIFY_URL,
   CONTRACTS_AUTH_ACCESS_JWT,
   CONTRACTS_AUTH_TIMEOUT,
   CONTRACTS_AUTH_TLS,
@@ -46,7 +48,12 @@ const {
   CONTRACTS_NATS_TLS_PRIV_KEY,
   CONTRACTS_NATS_TLS_CA,
   CONTRACTS_NATS_USER,
-  CONTRACTS_NATS_PASSWORD
+  CONTRACTS_NATS_PASSWORD,
+
+  CONTRACTS_LOGINS_MODE,
+
+  CONTRACTS_TRANSACTIONS_MAX_SIZE,
+  CONTRACTS_TRANSACTIONS_TTL_IN_SEC
 } = process.env;
 
 export default {
@@ -66,10 +73,11 @@ export default {
     httpsCa: CONTRACTS_SERVER_HTTPS_CA,
     httpsPubKey: CONTRACTS_SERVER_HTTPS_PUB_KEY,
     httpsPrivKey: CONTRACTS_SERVER_HTTPS_PRIV_KEY,
-    httpsRequestClientCert: false
+    httpsRequestClientCert: CONTRACTS_SERVER_HTTPS_CLIENT_REQ === 'true'
   },
   auth: {
     verifyUrl: CONTRACTS_AUTH_VERIFY_URL || 'http://auth:3000/auth/verify',
+    tenantVerifyUrl: CONTRACTS_AUTH_TENANT_VERIFY_URL || 'http://auth:3000/tenant/verify',
     accessJwt: CONTRACTS_AUTH_ACCESS_JWT,
     timeout: parseInt(CONTRACTS_AUTH_TIMEOUT, 10) || 10000,
     tls: CONTRACTS_AUTH_TLS === 'true',
@@ -93,6 +101,9 @@ export default {
     tlsPrivKeyPass: CONTRACTS_FABRICAPI_TLS_PRIV_KEY_PASSWORD || '',
     tlsCa: CONTRACTS_FABRICAPI_TLS_CA || ''
   },
+  logins: {
+    corporate: CONTRACTS_LOGINS_MODE === 'corporate'
+  },
   mq: {
     channelChaincodes: '/hyperledger-fabricapi/events/chaincodes/',
     channelTransactions: '/hyperledger-fabricapi/events/transactions/',
@@ -104,6 +115,9 @@ export default {
     natsTlsPrivKey: CONTRACTS_NATS_TLS_PRIV_KEY || '',
     natsTlsCa: CONTRACTS_NATS_TLS_CA || '',
     natsUser: CONTRACTS_NATS_USER || '',
-    natsPassword: CONTRACTS_NATS_PASSWORD || ''
+    natsPassword: CONTRACTS_NATS_PASSWORD || '',
+
+    transactionsMaxSize: parseInt(CONTRACTS_TRANSACTIONS_MAX_SIZE, 10) || 32768,
+    transactionsTtlInSec: parseInt(CONTRACTS_TRANSACTIONS_TTL_IN_SEC, 10) || 40
   }
 };
