@@ -4,7 +4,11 @@ services:
 script:
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 - chmod ugo+x ./build.sh
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "production"; elif ["$TRAVIS_BRANCH"
-  == "develop"]; then echo "stage"; else echo "dev-$(git rev-parse --short HEAD)"
-  ; fi`
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "production"; elif [
+  "$TRAVIS_BRANCH" == "develop" ]; then echo "stage"; else echo "dev-$(git rev-parse
+  --short HEAD)"; fi`
 - "./build.sh $TAG"
+env:
+  global:
+  - secure: nPFFSN+41qZWYDMLT18xua4FVPNMuIQN6UNZLKa81TFpHr+3haxe1rOuSvkoi3iWeo3vwTpst2vItyn70PenzvpAbBlQ8+23s7YijBhcc3zQR9xNMab94VCaRGRacKp+S0SsO/fKk4I4gSIEA2qmVy4GnzCMCWIjsfTGTm/1De2kxx67rwe/rvjffix4dfbshsKTc8waD4Jen5bDO/BLuxnMmx299ssT1LgruBNx5o8IC2qqriIALinFviu26fIr3i53P1WCf4yf1TCimlu/R1e6PP3V191dBstNaRaQqIpzRrn5X5Cm32XzBjSs7OWt3DeWncjoonP8tEI/c7JAzNEgjrESQAgATO1v7i66kk+W8zI21BCImn3Vq1/j1tE4aUYBAoGYni3UciAy+f6SY69/db51wXl2doUjQtemn4PE+rec8Chuq3HyvgCCGLDs4xcv5lu8j+mtaJdK+g359hcgBxbRJ5UkqHXcv0jebeCrRmY962nTkSJUIv2R9+DQw5naGkBqya/9goJcvf4s7EBcBDqwWoH8/Yn5uurMHR3hN/vuvVqmPnpwYPzx0OqsIr3E9h3V2eKT7Q46a9qme1prcEXfPmvfbDaS4/YApENfhf4Xuni8EiyZ8eLkjoHGIJcpgBdyu5PLTB+6KkWs3Lo6YvgKfLE7BLcY115EAR8=
+  - secure: FDqGzRf/1syNf23hl//94HAbw5EWsEFnc6+UfKLLBATREd+/BHrmRSnrUoiKUTRXveabD443YmQAozXRks/NC/oqkQ+mUb2w/gD/HoLPaH2rynGmTXNaudsev+QVHmj/JrlxARtIkJItvaONZcMYkzRBTqS9PKS9e90xBwa3h3Vv/Rg9nbvFHrhUPJJweaBNg1BYucAssezUn1NHQE8kU2487P1oqCmMDYYz1NZjNUIXBdkhjke/mnMdJYqBOtlaveRQSsJ+YU1p2RiS8ARoD66OhtCEmmIn2ypIViRLVNoH0ngQcQ5o+REaSAZY5UdppzW8W5vNN0cgXgKeRicyOAYx2ildtX+uVKYiEO0os0bnd3JdbP+JbQTyrJM8LbaVVmlmkVz3OmWp7145cVfwOUdbfWlTrScxEf59uIh0FedLtMo4A4f6rNuJgku8SGmiZCeEVDHxQ0ANE/y9+F1/eXkH4EPOeZwpw1La7oWLX8mURrAjeOsQYLxkm47XUpNdci9mLTmk9SOMT07L/vv42JYsWQIUtj0L/2OK71+Qhpb7TzOJPHkTsZGtOs8ozKX2h8lafe2q9TwUsSoIf/wDc7jLKP7ByDsH2tbIQKNYZOa4JnzZ1oguDr9gRYTAeHdp6P/E7hdSMgHrl4PdtYT1wqvz1pgAE5cclskUZiMgYH0=

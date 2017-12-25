@@ -13,4 +13,4 @@ tmp
 MetaCoin_sol_MetaCoin.abi
 MetaCoin_sol_MetaCoin.bin
 call
-call-new
+call-*

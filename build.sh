@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ex
-IMAGE_NAME="jincort/hyperledger-fabricapi"
+IMAGE_NAME="jincort/backend-contracts"
 TAG="${1}"
 DOCKER_FILE="Dockerfile.$TAG"
 DOCKER_FILE=$( [ -e "$DOCKER_FILE" ] && echo $DOCKER_FILE || echo Dockerfile )
